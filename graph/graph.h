@@ -1,3 +1,4 @@
+#pragma once
 #include <map>
 
 template<class TVertex, class TEdgeProperty> 
