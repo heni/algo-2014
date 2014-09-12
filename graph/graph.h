@@ -29,27 +29,30 @@ public:
         }
     };
 
-    struct TEdge {
+    template <class _TEdgeProperty>
+    struct _TEdge {
         TVertex Source;
         TVertex Destination;
-        TEdgeProperty* PropsPtr;
+        _TEdgeProperty* PropsPtr;
 
-        TEdge()
+        _TEdge()
             : PropsPtr(nullptr)
         {}
 
-        TEdge(const TVertex& source, const TVertex& dest, TEdgeProperty& props)
+        _TEdge(const TVertex& source, const TVertex& dest, _TEdgeProperty& props)
             : Source(source), Destination(dest), PropsPtr(&props)
         {}
 
-        TEdgeProperty& GetProperty() {
+        _TEdgeProperty& GetProperty() {
             return *PropsPtr;
         }
 
-        const TEdgeProperty& GetProperty() const {
+        const _TEdgeProperty& GetProperty() const {
             return *PropsPtr;
         }
     };
+    typedef _TEdge<TEdgeProperty> TEdge;
+    typedef _TEdge<const TEdgeProperty> TConstEdge;
 
     template <class TEdge>
     class _TEdgeIterator {
@@ -64,7 +67,7 @@ public:
 
         void ForceInitialization() const {
             if (!IsInitialized) {
-                InternalEdge = TEdge(*Source, InternalIt->first, const_cast<typename TAdjacencyList::mapped_type&>(InternalIt->second));
+                InternalEdge = TEdge(*Source, InternalIt->first, InternalIt->second);
                 IsInitialized = true;
             }
         }
@@ -119,7 +122,7 @@ public:
         }
     };
     typedef _TEdgeIterator<TEdge> TEdgeIterator;
-    typedef _TEdgeIterator<const TEdge> TConstEdgeIterator;
+    typedef _TEdgeIterator<const TConstEdge> TConstEdgeIterator;
 
     TGraph() {}
     ~TGraph() {}
