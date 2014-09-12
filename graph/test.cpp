@@ -20,7 +20,7 @@ TTestGraph GraphFromFile(const string& filename) {
         int a , b;
         in >> a >> b;
         if (!(0 < a && a <= n && 0 < b && b <= n))
-            throw runtime_error("bad edge");
+            throw runtime_error("bad edge: " + to_string(a) + "«—»" + to_string(b));
         result.AddEdge(a, b, true);
         result.AddEdge(b, a, true);
     }
@@ -41,12 +41,11 @@ void PrintComponents(const TTestGraph& g) {
                 int v = q.front();
                 q.pop();
                 cout << v << " ";
-                TTestGraph::TEdgeIterator eIt, eItEnd;
+                TTestGraph::TConstEdgeIterator eIt, eItEnd;
                 for (std::tie(eIt, eItEnd) = g.GetVertexAdjacency(v); eIt != eItEnd; ++eIt) {
-                    const TTestGraph::TEdge edge = *eIt;
-                    if (! was.count(edge.Destination)) {
-                        q.push(edge.Destination);
-                        was[edge.Destination] = true;
+                    if (! was.count(eIt->Destination)) {
+                        q.push(eIt->Destination);
+                        was[eIt->Destination] = true;
                     }
                 }
             }
