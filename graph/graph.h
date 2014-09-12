@@ -154,7 +154,7 @@ public:
         return Adjacencies.count(v);
     }
 
-    void AddEdge(const TVertex& a, const TVertex& b, const TEdgeProperty& props) {
+    void AddEdge(const TVertex& a, const TVertex& b, const TEdgeProperty& props = TEdgeProperty()) {
         AddVertex(a);
         AddVertex(b);
         Adjacencies[a][b] = props;

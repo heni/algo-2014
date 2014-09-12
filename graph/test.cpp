@@ -21,8 +21,8 @@ TTestGraph GraphFromFile(const string& filename) {
         in >> a >> b;
         if (!(0 < a && a <= n && 0 < b && b <= n))
             throw runtime_error("bad edge: " + to_string(a) + "«—»" + to_string(b));
-        result.AddEdge(a, b, true);
-        result.AddEdge(b, a, true);
+        result.AddEdge(a, b);
+        result.AddEdge(b, a);
     }
     return std::move(result);   
 }
