@@ -55,7 +55,7 @@ void PrintComponents(const TTestGraph& g) {
 }
 
 int main() {
-    const TTestGraph g = GraphFromFile("graph.data");
+    TTestGraph g = GraphFromFile("graph.data");
     PrintComponents(g);
     return 0;
 };

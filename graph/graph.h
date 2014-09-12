@@ -54,10 +54,12 @@ public:
     typedef _TEdge<TEdgeProperty> TEdge;
     typedef _TEdge<const TEdgeProperty> TConstEdge;
 
-    template <class TEdge>
+    template <class TInternalIterator, class TEdge>
     class _TEdgeIterator {
+        typedef _TEdgeIterator<TInternalIterator, TEdge> TMe;
+
         const TVertex* Source;
-        typename TAdjacencyList::const_iterator InternalIt;
+        TInternalIterator InternalIt;
         /*small hack:
             store precomputed TEdge inside iterator memory
             be carefull - this data may be invalidated after iterator incrementation
@@ -79,20 +81,21 @@ public:
             : IsInitialized(false) 
         {}
 
-        _TEdgeIterator(const TVertex src, typename TAdjacencyList::const_iterator it)
+        _TEdgeIterator(const TVertex& src, TInternalIterator it)
             : Source(&src), InternalIt(it), IsInitialized(false)
         {}
 
-        _TEdgeIterator(const _TEdgeIterator<TEdge>& rhs)
+        _TEdgeIterator(const TMe& rhs)
             : Source(rhs.Source), InternalIt(rhs.InternalIt), IsInitialized(false)
         {}
 
-        _TEdgeIterator& operator=(const _TEdgeIterator<TEdge>& rhs) {
+        _TEdgeIterator& operator=(const TMe& rhs) {
             if (this == &rhs)
                 return *this;
             Source = rhs.Source;
             InternalIt = rhs.InternalIt;
             IsInitialized = false;
+            return *this;
         }
 
         ~_TEdgeIterator() {}
@@ -107,22 +110,22 @@ public:
             return &InternalEdge;
         }
 
-        _TEdgeIterator& operator++() {
+        TMe& operator++() {
             ++InternalIt;
             ResetInitialization();
             return *this;
         }
 
-        bool operator==(const _TEdgeIterator<TEdge>& rhs) const {
+        bool operator==(const TMe& rhs) const {
             return InternalIt == rhs.InternalIt;
         }
 
-        bool operator!=(const _TEdgeIterator<TEdge>& rhs) const {
+        bool operator!=(const TMe& rhs) const {
             return InternalIt != rhs.InternalIt;
         }
     };
-    typedef _TEdgeIterator<TEdge> TEdgeIterator;
-    typedef _TEdgeIterator<const TConstEdge> TConstEdgeIterator;
+    typedef _TEdgeIterator<typename TAdjacencyList::iterator, TEdge> TEdgeIterator;
+    typedef _TEdgeIterator<typename TAdjacencyList::const_iterator, TConstEdge> TConstEdgeIterator;
 
     TGraph() {}
     ~TGraph() {}
@@ -140,7 +143,7 @@ public:
     }
 
     std::pair<TEdgeIterator, TEdgeIterator> GetVertexAdjacency(const TVertex& v) {
-        typename TAdjacencyData::const_iterator it = Adjacencies.find(v);
+        typename TAdjacencyData::iterator it = Adjacencies.find(v);
         return std::make_pair(
             TEdgeIterator(it->first, it->second.begin()), 
             TEdgeIterator(it->first, it->second.end())
