@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <tuple>
 #include <queue>
+#include <set>
 using namespace std;
 typedef TGraph<int, bool> TTestGraph;
 
@@ -29,14 +30,14 @@ TTestGraph GraphFromFile(const string& filename) {
 
 void PrintComponents(const TTestGraph& g) {
     queue<int> q;
-    map<int, bool> was;
+    set<int> was;
     size_t componentId = 0;
     TTestGraph::TVertexIterator vIt, vItEnd;
     for (std::tie(vIt, vItEnd) = g.GetVertices(); vIt != vItEnd; ++vIt) {
         if (! was.count(*vIt)) {
             cout << "component[" << ++componentId << "]: ";
             q.push(*vIt);
-            was[*vIt] = true;
+            was.insert(*vIt);
             while (!q.empty()) {
                 int v = q.front();
                 q.pop();
@@ -45,7 +46,7 @@ void PrintComponents(const TTestGraph& g) {
                 for (std::tie(eIt, eItEnd) = g.GetVertexAdjacency(v); eIt != eItEnd; ++eIt) {
                     if (! was.count(eIt->Destination)) {
                         q.push(eIt->Destination);
-                        was[eIt->Destination] = true;
+                        was.insert(eIt->Destination);
                     }
                 }
             }
