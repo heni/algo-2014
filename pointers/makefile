@@ -1,4 +1,7 @@
-all: test-shared test-unique
+all: test-shared test-unique test-weak
+
+test-weak: test-weak.cpp
+	g++ -std=c++11 $< -o $@
 
 test-shared: test-shared.cpp
 	g++ -std=c++11 $< -o $@
