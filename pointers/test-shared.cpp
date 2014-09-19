@@ -2,9 +2,9 @@
 #include <iostream>
 
 class TA {
-    int* Internal;
+    std::shared_ptr<int> Internal;
 public:
-    TA(int* internal) 
+    TA(const std::shared_ptr<int>& internal) 
         : Internal(internal)
     {}
 
@@ -14,7 +14,7 @@ public:
 };
 
 class TB {
-    int* Internal;
+    std::shared_ptr<int> Internal;
 public:
     TB(int* internal) 
         : Internal(internal)
@@ -26,10 +26,10 @@ public:
 };
 
 std::pair<TA, TB> CreateObjects() {
-    std::unique_ptr<int> valptr(new int(10));
+    std::shared_ptr<int> valptr = std::make_shared<int>(10);
     return std::make_pair<TA, TB> (
-        TA(valptr.get()),
-        TB(valptr.get())
+        valptr, 
+        valptr.get()
     );
 }
 
