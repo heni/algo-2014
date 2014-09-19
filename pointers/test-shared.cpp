@@ -16,7 +16,7 @@ public:
 class TB {
     std::shared_ptr<int> Internal;
 public:
-    TB(int* internal) 
+    TB(const std::shared_ptr<int>& internal) 
         : Internal(internal)
     {}
 
@@ -29,7 +29,7 @@ std::pair<TA, TB> CreateObjects() {
     std::shared_ptr<int> valptr = std::make_shared<int>(10);
     return std::make_pair<TA, TB> (
         valptr, 
-        valptr.get()
+        valptr
     );
 }
 
