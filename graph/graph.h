@@ -31,11 +31,11 @@ public:
     };
 
     template <class _TEdgeProperty>
-    struct _TEdge {
+    class _TEdge {
+        _TEdgeProperty* PropsPtr;
+    public:
         TVertex Source;
         TVertex Destination;
-        _TEdgeProperty* PropsPtr;
-
         _TEdge()
             : PropsPtr(nullptr)
         {}
