@@ -4,10 +4,10 @@
 #include <iostream>
 
 
-template <class TNode, class TPrior>
+template <class TNode, class TPrior, class TIndexType=std::map<TNode, size_t>>
 class TPriorityQueue {
     std::vector<std::pair<TNode, TPrior>> Nodes;
-    std::map<TNode, size_t> Index;
+    TIndexType Index;
     size_t Size;
     
     static size_t Parent(size_t i) { return (i - 1) / 2; }
@@ -78,9 +78,13 @@ public:
     }
 
     void Update(const TNode& node, const TPrior& nprior) {
-        size_t i = Index[node];
+        typename TIndexType::const_iterator it = Index.find(node);
+        if (it == Index.end())
+            throw std::runtime_error("no such node");
+        const size_t i = it->second;
         if (Nodes[i].second < nprior)
             throw std::runtime_error("bad priority");
+        Nodes[i].second = nprior;
         HeapUp(i);
     }
 
@@ -97,15 +101,28 @@ public:
 
 
 int main() {
+    std::function<double(int)> priorFn = [](int i)->double { 
+        return (i * i + i * 15) % 23; 
+    };
+    std::function<double(int)> priorFn2 = [](int i)->double { 
+        return (i * 7) % 23; 
+    };
+
     std::vector<std::pair<int, double>> data(17);
     std::generate(
         data.begin(), data.end(), 
-        []() -> decltype(data)::value_type {
-            static int index = 1;
-            return std::make_pair(++index, (index * index + index * 15) % 23);
+        [&priorFn]() -> decltype(data)::value_type {
+            static int index = 0;
+            ++index;
+            return std::make_pair(index, priorFn(index));
         }
     );
     TPriorityQueue<int, double> q(data);
+
+    for(size_t i = 1; i <= data.size() / 2; ++i) {
+        if (priorFn(i) > priorFn2(i))
+            q.Update(i, priorFn2(i));
+    }
 
     while (!q.Empty()) {
         int node; double prior;
