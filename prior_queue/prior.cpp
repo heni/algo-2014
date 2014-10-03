@@ -1,7 +1,11 @@
 #include <algorithm>
 #include <map>
+#include <unordered_map>
 #include <vector>
 #include <iostream>
+#include <chrono>
+#include <limits>
+#include <cassert>
 
 
 template <class TNode, class TPrior, class TIndexType=std::map<TNode, size_t>>
@@ -99,37 +103,51 @@ public:
     }
 };
 
-
-int main() {
-    std::function<double(int)> priorFn = [](int i)->double { 
-        return (i * i + i * 15) % 23; 
-    };
-    std::function<double(int)> priorFn2 = [](int i)->double { 
-        return (i * 7) % 23; 
-    };
-
-    std::vector<std::pair<int, double>> data(17);
-    std::generate(
-        data.begin(), data.end(), 
-        [&priorFn]() -> decltype(data)::value_type {
-            static int index = 0;
-            ++index;
-            return std::make_pair(index, priorFn(index));
-        }
-    );
-    TPriorityQueue<int, double> q(data);
-
+template<class TPriorityQueue>
+void test(const std::vector<std::pair<int, double>>& data, 
+          std::function<double(int)> priorFn, std::function<double(int)> priorFn2) {
+    auto start_time = std::chrono::steady_clock::now();
+    TPriorityQueue q(data);
     for(size_t i = 1; i <= data.size() / 2; ++i) {
-        if (priorFn(i) > priorFn2(i))
+        if (priorFn(i) > priorFn2(i)) {
+            //std::cout << i << std::endl;
             q.Update(i, priorFn2(i));
+        }
     }
-
+    double previous = -std::numeric_limits<double>::infinity();
     while (!q.Empty()) {
         int node; double prior;
         std::tie(node, prior) = q.GetMin();
-        std::cout << "(" << node << "," << prior << ") ";
+        assert(prior >= previous);
+        previous = prior;
         q.ExtractMin();
     }
-    std::cout << std::endl;
+    auto end_time = std::chrono::steady_clock::now();
+    std::cout << std::chrono::duration_cast<std::chrono::duration<double>>(end_time - start_time).count() << std::endl;
+}
+
+int main() {
+    std::function<double(int)> priorFn = [](int i)->double { 
+        return (i * i + i * 15) % 23671; 
+    };
+    std::function<double(int)> priorFn2 = [](int i)->double { 
+        return (i * 7) % 23671; 
+    };
+
+    std::vector<size_t> tests = {100, 1000, 100000, 10000000};
+    for (size_t testSize: tests) {
+        std::vector<std::pair<int, double>> data(testSize);
+        size_t index = 0;
+        std::generate(
+            data.begin(), data.end(), 
+            [&priorFn, &index]() -> decltype(data)::value_type {
+                ++index;
+                return std::make_pair(index, priorFn(index));
+            }
+        );
+        std::cout << "test size: " << testSize << std::endl;
+        test<TPriorityQueue<int, double, std::map<int, size_t>>>(data, priorFn, priorFn2);
+        test<TPriorityQueue<int, double, std::unordered_map<int, size_t>>>(data, priorFn, priorFn2);
+    }
     return 0;
 }
