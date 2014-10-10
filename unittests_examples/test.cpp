@@ -1,3 +1,6 @@
+/*
+ * for more information see http://www.boost.org/doc/libs/1_54_0/libs/test/doc/html/utf.html
+ */
 #include "string_plus.hpp"
 
 #define BOOST_TEST_MAIN
